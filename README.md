@@ -4,7 +4,17 @@
 
 Electron + 原生 HTML/CSS/JS，零框架、零构建工具、零外部资源（白噪音由 WebAudio 实时合成）。
 
+![Vibe Focus 桌面面板](docs/shots/panel.webp)
+
+<p>
+  <a href="https://github.com/pohduo2/vibe-focus/releases/tag/v1.0.0"><img alt="release" src="https://img.shields.io/github/v/release/pohduo2/vibe-focus?color=f4635a" /></a>
+  <img alt="platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-7fce7a" />
+  <img alt="deps" src="https://img.shields.io/badge/dependencies-0-blue" />
+</p>
+
 ## 下载安装
+
+**推荐走下载页**：<https://pohduo2.github.io/vibe-focus/>
 
 | 平台 | 文件 | 说明 |
 | --- | --- | --- |
@@ -13,7 +23,14 @@ Electron + 原生 HTML/CSS/JS，零框架、零构建工具、零外部资源（
 | Android 7.0+ | `VibeFocus-1.0.0-release.apk` | 允许「未知来源」后安装 |
 | Linux x64 | `VibeFocus-1.0.0-x86_64.AppImage` | `chmod +x` 后直接运行 |
 
-安装包见本仓库 **Releases** 页面。iOS 的 `.ipa` 必须由 macOS + Xcode + Apple 开发者账号签名，故不提供。
+安装包见本仓库 **Releases** 页面，详细的系统差异与排错见 [INSTALL.md](INSTALL.md)。
+iOS 的 `.ipa` 必须由 macOS + Xcode + Apple 开发者账号签名，故不提供。
+
+### 不安装也能用
+
+浏览器直接打开网页版：**<https://pohduo2.github.io/vibe-focus/web/>**
+功能与桌面版一致（计时、四种氛围、情绪打卡、本地统计），但没有桌面悬浮能力。
+iPhone 可用 Safari 打开后「添加到主屏幕」，获得全屏离线体验。
 
 ## 本地开发
 
@@ -71,7 +88,12 @@ bash scripts/publish.sh v1.0.0
 ├── package.json          # 依赖、脚本、electron-builder 配置
 ├── main.js               # 主进程：窗口、托盘、快捷键、IPC、尺寸自适应
 ├── index.html            # 渲染层：样式 + 结构 + 全部逻辑（单文件）
+├── INSTALL.md            # 各平台安装步骤与排错
 ├── build/                # 应用图标（ico / png）
+├── docs/                 # GitHub Pages 落地页 + 网页版
+│   ├── index.html        # 下载页（自动识别系统）
+│   ├── web/index.html    # 浏览器版应用
+│   └── shots/            # 截图（WebP）
 ├── scripts/publish.sh    # 一键发布
 └── .github/workflows/    # 三平台 CI
 ```
