@@ -53,6 +53,8 @@ if [ -d "$DIST_DIR" ]; then
         --notes "桌宠番茄钟 + 情绪打卡。Windows / Android / Linux 安装包，macOS 由 CI 构建后自动追加。"
     fi
   fi
+else
+  say "未找到本地安装包目录 ${DIST_DIR}，全部平台将由 GitHub Actions 构建（约 5-8 分钟）"
 fi
 
 USER_LOGIN="$(gh api user -q .login)"
