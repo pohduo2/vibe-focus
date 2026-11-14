@@ -1,0 +1,12 @@
+node_modules/
+release/
+dist/
+out/
+*.log
+.DS_Store
+Thumbs.db
+core.*
+*.AppImage
+*.exe
+*.dmg
+*.apk
