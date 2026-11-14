@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vibe Focus · 桌宠番茄钟 & 情绪打卡</title>
+<meta name="description" content="一只住在桌面角落的番茄精灵。透明置顶、可拖拽，四种氛围白噪音、情绪打卡、本地统计。全离线，零依赖。" />
+<meta property="og:title" content="Vibe Focus · 桌宠番茄钟 & 情绪打卡" />
+<meta property="og:description" content="透明置顶的桌宠番茄钟，四种氛围白噪音 + 情绪打卡 + 本地统计。" />
+<meta property="og:image" content="shots/panel.webp" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='57' r='38' fill='%23f4635a'/><path d='M50 26 Q38 8 26 20 Q40 24 44 30 Z' fill='%237fce7a'/><path d='M50 26 Q62 8 74 20 Q60 24 56 30 Z' fill='%2361b368'/></svg>" />
+<style>
+  :root{
+    --bg:#08090d;
+    --bg2:#0d1017;
+    --card:rgba(255,255,255,.035);
+    --line:rgba(255,255,255,.09);
+    --ink:#eef1f7;
+    --muted:#9aa3b2;
+    --tomato:#f4635a;
+    --tomato-dim:#c94a44;
+    --leaf:#7fce7a;
+    --cafe:#e8965a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%;height:auto}
+  .wrap{width:min(1120px,calc(100% - 48px));margin:0 auto}
+
+  /* ---------- 顶栏 ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(18px) saturate(160%);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);
+    background:rgba(8,9,13,.72);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .nav-in{display:flex;align-items:center;gap:12px;height:60px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:.2px}
+  .brand svg{width:24px;height:24px}
+  .nav-links{margin-left:auto;display:flex;align-items:center;gap:22px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links .gh{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;transition:.2s}
+  .nav-links .gh:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.05)}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;padding:76px 0 88px;overflow:hidden}
+  .hero::before{
+    content:"";position:absolute;inset:-20% -10% auto -10%;height:720px;
+    background:
+      radial-gradient(560px 380px at 22% 18%, rgba(244,99,90,.20), transparent 68%),
+      radial-gradient(520px 340px at 78% 6%, rgba(232,150,90,.13), transparent 66%),
+      radial-gradient(620px 420px at 55% 46%, rgba(127,206,122,.07), transparent 70%);
+    filter:blur(8px);pointer-events:none;
+  }
+  .hero-in{position:relative;display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:5px 12px 5px 8px;border-radius:999px;
+    background:rgba(244,99,90,.12);border:1px solid rgba(244,99,90,.28);
+    font-size:12.5px;color:#ffb3ad;letter-spacing:.4px;
+  }
+  .eyebrow b{width:6px;height:6px;border-radius:50%;background:var(--tomato);box-shadow:0 0 8px var(--tomato)}
+  h1{
+    margin:22px 0 18px;
+    font-size:clamp(33px,4.4vw,52px);
+    line-height:1.22;letter-spacing:-.8px;font-weight:750;
+  }
+  h1 em{
+    font-style:normal;
+    background:linear-gradient(100deg,var(--tomato) 10%,var(--cafe) 58%,var(--leaf) 96%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{color:var(--muted);font-size:16.5px;max-width:46ch}
+  .lede strong{color:var(--ink);font-weight:600}
+
+  /* 下载 */
+  .dl{margin-top:34px}
+  .dl-title{font-size:12.5px;letter-spacing:1.4px;text-transform:uppercase;color:#6f7889;margin-bottom:12px}
+  .dl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:520px}
+  .dl-item{
+    display:flex;align-items:center;gap:11px;
+    padding:11px 13px;border-radius:13px;
+    border:1px solid var(--line);background:var(--card);
+    transition:.18s ease;
+  }
+  .dl-item:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+  .dl-item.rec{
+    border-color:rgba(244,99,90,.55);
+    background:linear-gradient(180deg,rgba(244,99,90,.16),rgba(244,99,90,.06));
+    box-shadow:0 0 0 1px rgba(244,99,90,.12), 0 8px 24px -14px rgba(244,99,90,.7);
+  }
+  .dl-ic{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:9px;background:rgba(255,255,255,.07)}
+  .dl-ic svg{width:16px;height:16px;fill:currentColor}
+  .dl-tx{line-height:1.35;min-width:0}
+  .dl-tx b{display:block;font-size:13.5px;font-weight:600}
+  .dl-tx span{display:block;font-size:11.5px;color:#7e8798}
+  .dl-item.rec .dl-tx span{color:#ffa8a2}
+  .dl-note{margin-top:12px;font-size:12.5px;color:#6f7889}
+  .dl-note a{color:#a8b3c4;border-bottom:1px solid rgba(255,255,255,.18)}
+
+  /* Hero 视觉 */
+  .visual{position:relative}
+  .visual img{
+    border-radius:16px;border:1px solid rgba(255,255,255,.13);
+    box-shadow:0 34px 70px -28px rgba(0,0,0,.95), 0 0 0 1px rgba(0,0,0,.4);
+  }
+  .visual::after{
+    content:"";position:absolute;inset:auto 8% -26px 8%;height:52px;
+    background:radial-gradient(closest-side,rgba(244,99,90,.36),transparent);
+    filter:blur(18px);z-index:-1;
+  }
+
+  /* ---------- 数据条 ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    background:var(--line);
+  }
+  .stat{background:#0b0e14;padding:20px 18px}
+  .stat b{display:block;font-size:22px;font-weight:700;letter-spacing:-.4px}
+  .stat span{font-size:12.5px;color:#7e8798}
+
+  /* ---------- 通用区块 ---------- */
+  section.block{padding:84px 0}
+  .sec-head{max-width:640px;margin-bottom:40px}
+  .sec-tag{font-size:12.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--tomato);font-weight:600}
+  .sec-head h2{margin:10px 0 12px;font-size:clamp(24px,3vw,34px);line-height:1.3;letter-spacing:-.5px}
+  .sec-head p{color:var(--muted)}
+
+  /* 功能卡 */
+  .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .feat{
+    padding:22px 20px;border-radius:16px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+    transition:.2s;
+  }
+  .feat:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+  .feat-ic{
+    width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    font-size:18px;margin-bottom:14px;
+    background:rgba(244,99,90,.13);border:1px solid rgba(244,99,90,.2);
+  }
+  .feat:nth-child(2) .feat-ic{background:rgba(120,170,255,.13);border-color:rgba(120,170,255,.22)}
+  .feat:nth-child(3) .feat-ic{background:rgba(232,150,90,.13);border-color:rgba(232,150,90,.22)}
+  .feat:nth-child(4) .feat-ic{background:rgba(127,206,122,.13);border-color:rgba(127,206,122,.22)}
+  .feat:nth-child(5) .feat-ic{background:rgba(180,140,255,.13);border-color:rgba(180,140,255,.22)}
+  .feat:nth-child(6) .feat-ic{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16)}
+  .feat h3{font-size:15.5px;font-weight:650;margin-bottom:7px}
+  .feat p{font-size:13.8px;color:#8b94a4;line-height:1.65}
+
+  /* 截图 */
+  .shots{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+  .shot{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#0b0e14}
+  .shot img{width:100%;transition:transform .5s ease}
+  .shot:hover img{transform:scale(1.02)}
+  .shot figcaption{
+    position:absolute;left:14px;bottom:12px;
+    padding:5px 11px;border-radius:8px;font-size:12px;color:#e6eaf2;
+    background:rgba(8,9,13,.74);border:1px solid rgba(255,255,255,.12);
+    backdrop-filter:blur(8px);
+  }
+  .shot.tall{grid-row:span 2}
+  .shot.tall img{height:100%;object-fit:cover;object-position:top}
+
+  /* 安装 */
+  .inst{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .inst-card{padding:22px 20px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
+  .inst-card h3{display:flex;align-items:center;gap:9px;font-size:15px;margin-bottom:14px}
+  .inst-card h3 .dl-ic{width:26px;height:26px;flex:0 0 26px;border-radius:8px}
+  .inst-card h3 .dl-ic svg{width:14px;height:14px}
+  .inst-card ol{margin:0 0 0 18px;font-size:13.6px;color:#8b94a4;line-height:1.85}
+  .inst-card code{
+    font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:rgba(255,255,255,.07);padding:1.5px 6px;border-radius:5px;color:#cfd8e6;
+  }
+  .tip{
+    margin-top:12px;padding:10px 12px;border-radius:10px;font-size:12.6px;line-height:1.6;
+    background:rgba(232,150,90,.09);border:1px solid rgba(232,150,90,.2);color:#e0b28a;
+  }
+
+  /* Footer */
+  footer{border-top:1px solid var(--line);padding:34px 0 44px;color:#6f7889;font-size:13px}
+  .foot-in{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+  .foot-in a:hover{color:var(--ink)}
+
+  /* 入场动画 */
+  .rise{opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .d1{animation-delay:.05s}.d2{animation-delay:.14s}.d3{animation-delay:.23s}.d4{animation-delay:.32s}
+  @media (prefers-reduced-motion:reduce){
+    .rise{animation:none;opacity:1;transform:none}
+    html{scroll-behavior:auto}
+  }
+
+  /* 响应式 */
+  @media (max-width:900px){
+    .hero-in{grid-template-columns:1fr;gap:38px}
+    .visual{order:-1}
+    .feats{grid-template-columns:repeat(2,1fr)}
+    .shots{grid-template-columns:1fr}
+    .shot.tall{grid-row:auto}
+    .shot.tall img{height:auto;object-fit:contain}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .inst{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .wrap{width:calc(100% - 32px)}
+    .hero{padding:44px 0 60px}
+    .dl-grid{grid-template-columns:1fr}
+    .feats{grid-template-columns:1fr}
+    .nav-links{gap:12px}
+    .nav-links .txt{display:none}
+    section.block{padding:58px 0}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <div class="brand">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="57" r="38" fill="#f4635a"/>
+        <path d="M50 26 Q38 8 26 20 Q40 24 44 30 Z" fill="#7fce7a"/>
+        <path d="M50 26 Q62 8 74 20 Q60 24 56 30 Z" fill="#61b368"/>
+        <ellipse cx="40" cy="55" rx="3.4" ry="5" fill="#2a1417"/>
+        <ellipse cx="60" cy="55" rx="3.4" ry="5" fill="#2a1417"/>
+        <path d="M44 66 Q50 72 56 66" stroke="#5a1e22" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      Vibe Focus
+    </div>
+    <div class="nav-links">
+      <a href="#features" class="txt">功能</a>
+      <a href="#shots" class="txt">截图</a>
+      <a href="#install" class="txt">安装</a>
+      <a class="gh" href="https://github.com/pohduo2/vibe-focus" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <span class="eyebrow rise"><b></b>v1.0.0 · 全平台已发布</span>
+      <h1 class="rise d1">桌面角落住一只番茄，<br>陪你<em>专注 25 分钟</em>。</h1>
+      <p class="lede rise d2">
+        透明置顶的桌宠番茄钟。点「—」缩成一只小番茄蹲在屏幕角落，
+        按住就能拖到任何位置。四种氛围白噪音、情绪打卡、本地统计——
+        <strong>全部离线运行，零依赖，不收集任何数据</strong>。
+      </p>
+
+      <div class="dl rise d3">
+        <div class="dl-title">选择你的平台</div>
+        <div class="dl-grid">
+          <a class="dl-item" id="dl-win" href="https://github.com/pohduo2/vibe-focus/releases/download/v1.0.0/VibeFocus-1.0.0-Setup-x64.exe">
+            <span class="dl-ic"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1.6" width="6.2" height="6.2" rx=".6"/><rect x="8.8" y="1.6" width="6.2" height="6.2" rx=".6"/><rect x="1" y="8.2" width="6.2" height="6.2" rx=".6"/><rect x="8.8" y="8.2" width="6.2" height="6.2" rx=".6"/></svg></span>
+            <span class="dl-tx"><b>Windows</b><span>x64 · 78 MB · 安装程序</span></span>
+          </a>
+          <a class="dl-item" id="dl-mac-arm" href="https://github.com/pohduo2/vibe-focus/releases/download/v1.0.0/VibeFocus-1.0.0-arm64.dmg">
+            <span class="dl-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></span>
+            <span class="dl-tx"><b>macOS · Apple 芯片</b><span>arm64 · 94 MB · dmg</span></span>
+          </a>
+          <a class="dl-item" id="dl-mac-x64" href="https://github.com/pohduo2/vibe-focus/releases/download/v1.0.0/VibeFocus-1.0.0-x64.dmg">
+            <span class="dl-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></span>
+            <span class="dl-tx"><b>macOS · Intel</b><span>x64 · 98 MB · dmg</span></span>
+          </a>
+          <a class="dl-item" id="dl-android" href="https://github.com/pohduo2/vibe-focus/releases/download/v1.0.0/VibeFocus-1.0.0-release.apk">
+            <span class="dl-ic"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.4 5.6h9.2c.5 0 .9.4.9.9v5.1c0 .5-.4.9-.9.9H3.4c-.5 0-.9-.4-.9-.9V6.5c0-.5.4-.9.9-.9Z"/><circle cx="5.6" cy="8.2" r=".75" fill="#08090d"/><circle cx="10.4" cy="8.2" r=".75" fill="#08090d"/><path d="M4.6 4.6 3.7 3.1M11.4 4.6l.9-1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></span>
+            <span class="dl-tx"><b>Android</b><span>7.0+ · 31 KB · APK</span></span>
+          </a>
+          <a class="dl-item" id="dl-linux" href="https://github.com/pohduo2/vibe-focus/releases/download/v1.0.0/VibeFocus-1.0.0-x86_64.AppImage">
+            <span class="dl-ic"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.2" y="2.4" width="13.6" height="11.2" rx="2"/><path d="M3.8 6.2 6.3 8.3 3.8 10.4" stroke="#08090d" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10.6h4" stroke="#08090d" stroke-width="1.3" stroke-linecap="round"/></svg></span>
+            <span class="dl-tx"><b>Linux</b><span>x64 · 103 MB · AppImage</span></span>
+          </a>
+          <a class="dl-item" href="https://github.com/pohduo2/vibe-focus/releases/tag/v1.0.0">
+            <span class="dl-ic"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v9.2M8 13.4l3.6-3.6M8 13.4 4.4 9.8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.4 13.2v1.1h11.2v-1.1" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="dl-tx"><b>全部版本</b><span>Release 页面 · 含校验值</span></span>
+          </a>
+        </div>
+        <p class="dl-note" id="dl-note">正在识别你的系统…</p>
+      </div>
+    </div>
+
+    <div class="visual rise d2">
+      <img src="shots/panel.webp" width="1200" height="750" alt="Vibe Focus 悬浮在桌面右下角的番茄钟面板，含番茄精灵、25 分钟计时环与四种氛围" />
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats rise d3">
+    <div class="stat"><b>4</b><span>种氛围白噪音</span></div>
+    <div class="stat"><b>25/5/15</b><span>番茄 · 短休 · 长休</span></div>
+    <div class="stat"><b>132×158</b><span>桌宠态窗口尺寸</span></div>
+    <div class="stat"><b>0</b><span>外部音频文件 / 网络请求</span></div>
+  </div>
+</div>
+
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Features</div>
+      <h2>不只是计时器，是一个会喘气的桌面伙伴</h2>
+      <p>番茄精灵会眨眼、呼吸、专注时敲键盘、空闲 45 秒打瞌睡。计时结束后它跳起来撒花，然后问一句：现在感觉怎么样？</p>
+    </div>
+    <div class="feats">
+      <div class="feat"><div class="feat-ic">🍅</div><h3>时间戳驱动计时</h3><p>用结束时间戳反算剩余，不靠 setInterval 累加。窗口被遮挡、系统休眠后回来，时间依然准确。</p></div>
+      <div class="feat"><div class="feat-ic">🌧</div><h3>四种氛围，实时合成</h3><p>雨夜、咖啡馆、深夜键盘、森林。白噪音由 WebAudio 现场生成，没有音频文件，切换时先淡出再回收节点。</p></div>
+      <div class="feat"><div class="feat-ic">💭</div><h3>微型情绪打卡</h3><p>每次番茄结束弹出 6 种心情 + 一句话备注。记录情绪，比记录数字更有意义。</p></div>
+      <div class="feat"><div class="feat-ic">📊</div><h3>本地统计</h3><p>今日番茄数、专注分钟、连续天数、近 7 天柱状图、心情分布。全部存在 localStorage，不联网。</p></div>
+      <div class="feat"><div class="feat-ic">📌</div><h3>透明置顶悬浮</h3><p>无边框透明窗口，浮在壁纸和所有应用之上。面板顶栏整条可拖，桌宠态按住番茄任意拖动，位置跨重启记忆。</p></div>
+      <div class="feat"><div class="feat-ic">⌨️</div><h3>不用切窗口</h3><p>全局快捷键 <b>Ctrl/Cmd+Shift+Space</b> 直接开始或暂停，<b>Ctrl/Cmd+Shift+F</b> 唤出收起。托盘常驻，关窗口不进退出。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="shots" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Screens</div>
+      <h2>真实运行截图</h2>
+      <p>以下截图来自 Electron 实际运行画面（保留透明通道后合成到模拟桌面），未做视觉修饰。</p>
+    </div>
+    <div class="shots">
+      <figure class="shot tall"><img src="shots/pet.webp" width="1200" height="750" alt="桌宠形态：小番茄蹲在桌面右下角，头顶倒计时气泡" loading="lazy" /><figcaption>桌宠态 · 132×158，只剩一只番茄</figcaption></figure>
+      <figure class="shot"><img src="shots/cafe.webp" width="1200" height="750" alt="咖啡馆氛围主题的番茄钟面板" loading="lazy" /><figcaption>咖啡馆氛围 · 暖橙色调</figcaption></figure>
+      <figure class="shot"><img src="shots/closeup.webp" width="576" height="624" alt="番茄宠物特写，可见叶子、眨眼与微笑表情" loading="lazy" /><figcaption>纯 CSS 绘制的番茄精灵</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="install" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Install</div>
+      <h2>安装与首次打开</h2>
+      <p>安装包未做商业代码签名，因此系统会给出「未知开发者」提示——这是正常的，按下面的方式放行即可。</p>
+    </div>
+    <div class="inst">
+      <div class="inst-card">
+        <h3><span class="dl-ic"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1.6" width="6.2" height="6.2" rx=".6"/><rect x="8.8" y="1.6" width="6.2" height="6.2" rx=".6"/><rect x="1" y="8.2" width="6.2" height="6.2" rx=".6"/><rect x="8.8" y="8.2" width="6.2" height="6.2" rx=".6"/></svg></span>Windows 10 / 11</h3>
+        <ol>
+          <li>双击 <code>VibeFocus-1.0.0-Setup-x64.exe</code></li>
+          <li>可选安装目录，下一步到底</li>
+          <li>桌面出现「Vibe Focus」图标</li>
+        </ol>
+        <div class="tip">若弹出 SmartScreen「Windows 已保护你的电脑」，点「更多信息」→「仍要运行」。</div>
+      </div>
+      <div class="inst-card">
+        <h3><span class="dl-ic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></span>macOS 11+</h3>
+        <ol>
+          <li>M 系列芯片选 <code>arm64.dmg</code>，Intel 选 <code>x64.dmg</code></li>
+          <li>打开 dmg，把 Vibe Focus 拖进「应用程序」</li>
+          <li><b>右键</b>点图标 →「打开」→ 再点「打开」</li>
+        </ol>
+        <div class="tip">若提示「已损坏」，终端执行：<br><code>xattr -dr com.apple.quarantine "/Applications/Vibe Focus.app"</code></div>
+      </div>
+      <div class="inst-card">
+        <h3><span class="dl-ic"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.4 5.6h9.2c.5 0 .9.4.9.9v5.1c0 .5-.4.9-.9.9H3.4c-.5 0-.9-.4-.9-.9V6.5c0-.5.4-.9.9-.9Z"/><circle cx="5.6" cy="8.2" r=".75" fill="#08090d"/><circle cx="10.4" cy="8.2" r=".75" fill="#08090d"/><path d="M4.6 4.6 3.7 3.1M11.4 4.6l.9-1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></span>Android 7.0+</h3>
+        <ol>
+          <li>把 APK 传到手机（微信文件传输 / 数据线均可）</li>
+          <li>点击安装，允许「安装未知来源应用」</li>
+          <li>打开即用，功能与桌面版一致（无悬浮）</li>
+        </ol>
+        <div class="tip">APK 使用自签名证书，后续覆盖升级需沿用同一证书，否则要先卸载旧版。</div>
+      </div>
+      <div class="inst-card">
+        <h3><span class="dl-ic"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1.2" y="2.4" width="13.6" height="11.2" rx="2"/><path d="M3.8 6.2 6.3 8.3 3.8 10.4" stroke="#08090d" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10.6h4" stroke="#08090d" stroke-width="1.3" stroke-linecap="round"/></svg></span>Linux x64</h3>
+        <ol>
+          <li><code>chmod +x VibeFocus-1.0.0-x86_64.AppImage</code></li>
+          <li><code>./VibeFocus-1.0.0-x86_64.AppImage</code></li>
+          <li>想进应用菜单可装 <code>appimaged</code> 或手动建 desktop 文件</li>
+        </ol>
+        <div class="tip">若报 FUSE 相关错误，加参数运行：<code>--appimage-extract-and-run</code>。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>Vibe Focus v1.0.0 · Electron + 原生 HTML/CSS/JS · 零框架零构建</div>
+    <div>
+      <a href="https://github.com/pohduo2/vibe-focus" target="_blank" rel="noopener">源码</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/pohduo2/vibe-focus/releases" target="_blank" rel="noopener">所有版本</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/pohduo2/vibe-focus/blob/main/INSTALL.md" target="_blank" rel="noopener">安装文档</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var ua = navigator.userAgent || '';
+  var plat = 'win';
+  if (/Android/i.test(ua)) plat = 'android';
+  else if (/iPhone|iPad|iPod/i.test(ua)) plat = 'ios';
+  else if (/Mac OS X|Macintosh/i.test(ua)) plat = 'mac';
+  else if (/Linux/i.test(ua)) plat = 'linux';
+
+  var isArm = false;
+  try {
+    var gl = document.createElement('canvas').getContext('webgl');
+    var dbg = gl && gl.getExtension('WEBGL_debug_renderer_info');
+    var renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : '';
+    isArm = /Apple M\d|Apple GPU/i.test(renderer || '');
+  } catch (e) { /* 忽略：无法探测时按 Intel 处理 */ }
+
+  var target = null;
+  if (plat === 'win') target = 'dl-win';
+  else if (plat === 'mac') target = isArm ? 'dl-mac-arm' : 'dl-mac-x64';
+  else if (plat === 'android') target = 'dl-android';
+  else if (plat === 'linux') target = 'dl-linux';
+
+  var note = document.getElementById('dl-note');
+  if (target) {
+    var el = document.getElementById(target);
+    if (el) {
+      el.classList.add('rec');
+      note.innerHTML = '已为你标注推荐版本 · 也可以选择 <a href="https://github.com/pohduo2/vibe-focus/releases/tag/v1.0.0">全部下载</a>';
+    }
+  } else if (plat === 'ios') {
+    note.innerHTML = 'iOS 暂不提供 ipa（需 Apple 开发者签名）· 手机浏览器可直接打开 <a href="https://pohduo2.github.io/vibe-focus/web/">网页版</a>';
+  } else {
+    note.innerHTML = '未识别到系统 · 请从 <a href="https://github.com/pohduo2/vibe-focus/releases/tag/v1.0.0">Release 页面</a> 手动选择';
+  }
+})();
+</script>
+</body>
+</html>
